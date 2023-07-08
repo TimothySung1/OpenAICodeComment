@@ -3,7 +3,7 @@ import time
 
 openai.api_key = "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"
 
-WAIT_TIME = 20 # wait time per request in seocnds (3 reqs / min)
+WAIT_TIME = 60 # wait time per request in seconds (3 reqs / min is fastest)
 
 request_times = []
 
@@ -19,7 +19,7 @@ def get_function_docstrings(function_code):
         # remove first request from request_times, add current time
         request_times.pop(0)
 
-    request_times.append(time.time())
+    request_times.append(int(time.time()))
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[

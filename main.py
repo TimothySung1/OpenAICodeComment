@@ -1,7 +1,7 @@
 import os
 import code_interpret
 
-
+APPENDED_NAME = ' - commented'
 """
 App to select a folder in which to code comment all python files in its subdirectories and to create documentation for it.
 """
@@ -18,10 +18,13 @@ App to select a folder in which to code comment all python files in its subdirec
 # print(os.path.dirname(os.getcwd())) # C:\Users\tsung\Desktop\Projects\OpenAIProjects
 # print(os.path.split(os.getcwd())) # ('C:\\Users\\tsung\\Desktop\\Projects\\OpenAIProjects', 'AICodeCommentDocument')
 
+# TODO: Put source and output directories as requirement
+# this would remove unneccessary conditions in is_valid_content function
+
 def main():
     path = os.getcwd()
     parent_directory, new_directory_name = os.path.split(path)
-    new_directory_name += ' - CodeCommented'
+    new_directory_name += APPENDED_NAME
     new_directory_path = path + "\\" + new_directory_name
 
     # if copy directory already made, return
@@ -29,47 +32,54 @@ def main():
         return
 
     os.makedirs(new_directory_path)
-    
-    # get content in current folder
-    files_and_subdirectories = get_files_and_subdirectories(new_directory_name)
 
     # copy content into copy directory
-    copy_content(files_and_subdirectories, new_directory_path)
+    copy_content(path, new_directory_path)
 
+    # TODO: Create sphinx documentation for the commented files
 
+def get_files_and_subdirectories(current_directory, new_directory_name):
+    return [item_name for item_name in os.listdir(current_directory) if is_valid_content(item_name, current_directory, new_directory_name)]
 
-def get_files_and_subdirectories(new_directory_name):
-    return [item_name for item_name in os.listdir(os.getcwd()) if is_valid_content(item_name, new_directory_name)]
-
-def is_valid_content(content, new_directory_name):
-    if content[-3:] == '.py':
+def is_valid_content(content, current_directory, new_directory_name):
+    if content[-3:] == '.py' and content != 'main.py' and content != 'code_interpret.py' and content != 'create_docs.py':
         return True
-    if os.path.isdir(os.path.join(os.getcwd(), content)) and content != new_directory_name and content != '.git':
+    if os.path.isdir(os.path.join(current_directory, content)) and content != new_directory_name and content != '.git' and content[-16:] != APPENDED_NAME  and content != '__pycache__':
         return True
     return False
 
-def copy_content(file_directory_names, destination):
+def copy_content(path, destination):
+    # print("current path: ", path)
+    # print('current dest: ', destination)
+    file_directory_names = get_files_and_subdirectories(path, destination)
+    # print("contents: ", file_directory_names)
+
+    # check for __init__.py, create if not exist
+    if not '__init__.py' in file_directory_names:
+        init = open(os.path.join(path, '__init__.py'), 'w')
+        init.close()
+
     for content in file_directory_names:
-        if os.path.isfile(content):
+        content_path = os.path.join(path, content)
+        if os.path.isfile(content_path):
             # create new copied file, write to it with added comments
 
-            commented_file_text = get_copy(content)
+            commented_file_text = get_copy(content_path)
             
             # create copied file in directory
-            with open(destination + "\\" + content, "w") as new_file:
+            with open(os.path.join(destination, content), "w") as new_file:
                 new_file.write(commented_file_text)
             
-        elif os.path.isdir(content):
+        elif os.path.isdir(content_path):
+            new_destination = os.path.join(destination, content)
             # create new copied subdirectory, call itself
-            new_subdirectory = content + ' - CodeCommentedSub'
-            os.mkdir(new_subdirectory)
+            os.mkdir(new_destination)
 
-            files_and_subdirectories = get_files_and_subdirectories(new_subdirectory)
-            copy_content(files_and_subdirectories, os.getcwd() + "\\" + new_subdirectory)
+            copy_content(content_path, new_destination)
 
-def get_copy(content_name):
+def get_copy(content_path):
     lines = []
-    with open(content_name, "r") as content_file:
+    with open(content_path, "r") as content_file:
         while True:
             line = content_file.readline()
             
@@ -103,13 +113,15 @@ def get_copy(content_name):
                     body_line = content_file.readline()
 
                 function_text = line.strip() + "\n" + ''.join(body)
+                # print(function_text)
                 docstrings = code_interpret.get_function_docstrings(function_text)
+                
                 # print("docstrings -\n" + docstrings)
                 # print("body -\n" + ''.join(body))
 
                 lines.append(line)
-                lines.append(' ' * initial_indent + docstrings + "\n")
-                lines.append(' ' * initial_indent + ''.join(body))
+                lines.append(' ' * (initial_indent + body_indent) + ('\n' + ' ' * (initial_indent + body_indent)).join(docstrings.split("\n")) + "\n")
+                lines.append(' ' * (initial_indent) + ''.join(body) + "\n")
             else:
                 # print("line -\n" + line)
                 lines.append(line)
