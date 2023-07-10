@@ -7,9 +7,9 @@ WAIT_TIME = 60 # wait time per request in seconds (3 reqs / min is fastest)
 
 request_times = []
 
-# create individual requests for methods
 def get_function_docstrings(function_code):
-    # print("get_function_docstrings()")
+    # returns the docstrings for a given function
+
     # check if 3 requests made
     if len(request_times) == 3:
         # wait for WAIT_TIME seconds after the first request was made
@@ -40,5 +40,4 @@ def get_function_docstrings(function_code):
     )
 
     response = completion["choices"][0]["message"]["content"]
-    # print(response)
     return response

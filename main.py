@@ -39,9 +39,11 @@ def main():
     # TODO: Create sphinx documentation for the commented files
 
 def get_files_and_subdirectories(current_directory, new_directory_name):
+    # returns a list of file and directory names to search through and comment
     return [item_name for item_name in os.listdir(current_directory) if is_valid_content(item_name, current_directory, new_directory_name)]
 
 def is_valid_content(content, current_directory, new_directory_name):
+    # checks if the given file/directory has a valid name
     if content[-3:] == '.py' and content != 'main.py' and content != 'code_interpret.py' and content != 'create_docs.py':
         return True
     if os.path.isdir(os.path.join(current_directory, content)) and content != new_directory_name and content != '.git' and content[-16:] != APPENDED_NAME  and content != '__pycache__':
@@ -49,21 +51,19 @@ def is_valid_content(content, current_directory, new_directory_name):
     return False
 
 def copy_content(path, destination):
-    # print("current path: ", path)
-    # print('current dest: ', destination)
+    # creates copies of the files/directories in the path and stores it in the destination
     file_directory_names = get_files_and_subdirectories(path, destination)
-    # print("contents: ", file_directory_names)
 
     # check for __init__.py, create if not exist
     if not '__init__.py' in file_directory_names:
         init = open(os.path.join(path, '__init__.py'), 'w')
         init.close()
 
+    # create copies for all files and directories
     for content in file_directory_names:
         content_path = os.path.join(path, content)
         if os.path.isfile(content_path):
             # create new copied file, write to it with added comments
-
             commented_file_text = get_copy(content_path)
             
             # create copied file in directory
@@ -74,10 +74,10 @@ def copy_content(path, destination):
             new_destination = os.path.join(destination, content)
             # create new copied subdirectory, call itself
             os.mkdir(new_destination)
-
             copy_content(content_path, new_destination)
 
 def get_copy(content_path):
+    # creates a copy of the file, with code commenting
     lines = []
     with open(content_path, "r") as content_file:
         while True:
@@ -109,24 +109,19 @@ def get_copy(content_path):
                 
                 body = []
                 while body_line[:initial_indent + body_indent] == ' ' * (initial_indent + body_indent):
-                    body.append(body_line[initial_indent:]) # only append the body with relative indent to function header
+                    # only append the body with relative indent to function header
+                    body.append(body_line[initial_indent:]) 
                     body_line = content_file.readline()
 
                 function_text = line.strip() + "\n" + ''.join(body)
-                # print(function_text)
                 docstrings = code_interpret.get_function_docstrings(function_text)
-                
-                # print("docstrings -\n" + docstrings)
-                # print("body -\n" + ''.join(body))
 
                 lines.append(line)
                 lines.append(' ' * (initial_indent + body_indent) + ('\n' + ' ' * (initial_indent + body_indent)).join(docstrings.split("\n")) + "\n")
                 lines.append(' ' * (initial_indent) + ''.join(body) + "\n")
             else:
-                # print("line -\n" + line)
                 lines.append(line)
     commented_file_text = ''.join(lines)
-    # print("FINAL PRODUCT: ")
 
     return commented_file_text
 
