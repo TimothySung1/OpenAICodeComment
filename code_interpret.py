@@ -1,7 +1,7 @@
 import openai
 import time
 
-openai.api_key = "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"
+openai.api_key = ""
 
 WAIT_TIME = 60 # wait time per request in seconds (3 reqs / min is fastest)
 
