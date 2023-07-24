@@ -8,3 +8,7 @@ With the docstrings, you can use it to generate formal documentation using Sphin
 Some future features:
 - Automatically create Sphinx documentation
 - Create comments for Java (javadocs) and other languages
+
+## Note:
+### The current generate docstrings python file does not work. To test the program out, copy the python files into the directory you want to comment.
+### After changing the API key in the openai handler, run the main python file. The program will create a separate directory inside.
