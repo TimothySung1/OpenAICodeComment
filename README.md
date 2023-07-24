@@ -2,6 +2,7 @@
 
 This simple python program can automatically create python docstrings for any python file.
 This goes through an entire directory (including subdirectories) and creates AI generated docstrings for all functions and methods.
+To handle rate limits of 3 requests per minute, the program is somewhat slow (but it still works, so please be patient)
 
 With the docstrings, you can use it to generate formal documentation using Sphinx.
 
