@@ -1,5 +1,6 @@
 import os
 import code_interpret
+import create_docs
 
 APPENDED_NAME = ' - commented'
 """
@@ -36,7 +37,10 @@ def main():
     # copy content into copy directory
     copy_content(path, new_directory_path)
 
-    # TODO: Create sphinx documentation for the commented files
+    # build documentation using sphinx
+    create_docs.create_sphinx_docs(new_directory_name)
+    create_docs.sphinx_build()
+
 
 def get_files_and_subdirectories(current_directory, new_directory_name):
     # returns a list of file and directory names to search through and comment
