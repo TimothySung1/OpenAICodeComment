@@ -3,3 +3,6 @@
 /source/*
 
 !/source/index.rst
+.env
+
+/src_test*

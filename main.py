@@ -23,10 +23,12 @@ App to select a folder in which to code comment all python files in its subdirec
 # this would remove unneccessary conditions in is_valid_content function
 
 def main():
-    path = os.getcwd()
-    parent_directory, new_directory_name = os.path.split(path)
-    new_directory_name += APPENDED_NAME
-    new_directory_path = path + "\\" + new_directory_name
+    path = input("Enter the source directory path of python files you want to comment: ")
+    if (path == ""):
+        path = os.getcwd()
+    parent_directory, source_directory = os.path.split(path)
+    commented_source_directory = source_directory + APPENDED_NAME
+    new_directory_path = os.path.join(os.getcwd(), commented_source_directory)
 
     # if copy directory already made, return
     if os.path.exists(new_directory_path):
@@ -38,7 +40,7 @@ def main():
     copy_content(path, new_directory_path)
 
     # build documentation using sphinx
-    create_docs.create_sphinx_docs(new_directory_name)
+    create_docs.create_sphinx_docs(commented_source_directory)
     create_docs.sphinx_build()
 
 
@@ -48,7 +50,7 @@ def get_files_and_subdirectories(current_directory, new_directory_name):
 
 def is_valid_content(content, current_directory, new_directory_name):
     # checks if the given file/directory has a valid name
-    if content[-3:] == '.py' and content != 'main.py' and content != 'code_interpret.py' and content != 'create_docs.py':
+    if content[-3:] == '.py':
         return True
     if os.path.isdir(os.path.join(current_directory, content)) and content != new_directory_name and content != '.git' and content[-16:] != APPENDED_NAME  and content != '__pycache__':
         return True

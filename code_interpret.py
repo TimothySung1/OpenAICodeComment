@@ -1,7 +1,8 @@
+from decouple import config
 import openai
 import time
 
-openai.api_key = ""
+openai.api_key = config('OPENAI_APIKEY')
 
 WAIT_TIME = 60 # wait time per request in seconds (3 reqs / min is fastest)
 
@@ -18,8 +19,9 @@ def get_function_docstrings(function_code):
         
         # remove first request from request_times, add current time
         request_times.pop(0)
-
-    request_times.append(int(time.time()))
+    print("requested...")
+    print(function_code)
+    request_times.append(int(time.time()))  
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
